@@ -11,3 +11,21 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+.priority{
+  cursor: default;
+}
+
+.priority::before{
+  position: absolute;
+  content: 'Priority';
+  left: -70%;
+  top: -60%;
+  font-size: 0.8rem;
+  color: #ddd;
+  display: none;
+}
+
+.priority:hover::before{
+  display: block;
+}
