@@ -165,7 +165,7 @@ const App = () => {
       <h3 className='text-center mt-5'>Todo List</h3>
       <div className='container'>
         <div className='row'>
-      <div className='col-md-6 py-2'>
+      <div className='col-md-6'>
         <h3 className='text-center my-2'>Active Tasks</h3>
         {
 

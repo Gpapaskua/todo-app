@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { useState } from 'react'
 
 /**UI components */
 import Input from '../components-ui/Input';
@@ -49,7 +49,7 @@ const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, handleE
     return (
         <div className='d-flex align-items-center justify-content-evenly
                         py-3 bg-secondary rounded my-2'>
-                <span>{index + 1}.</span>
+                <span className=''>{index + 1}.</span>
 
               {
 
