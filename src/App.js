@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 /**components */
 import NewTodo from './components/NewTodo';
@@ -6,7 +6,7 @@ import Todo from './components/common/Todo';
 
 /**helpers */
 import { sortTasks } from './services/sortTasks';
-import { validateTaskTitle } from './services/NewTodoValidation';
+import { updateTask } from './services/TodoValidation';
 import { splitTasks } from './services/splitTasks';
 
 
@@ -18,40 +18,45 @@ const App = () => {
   const [completedTasks, setCompletedTasks] = useState([]); // list of completed tasks
   const [activeTasksPage, setActiveTasksPage] = useState(1);
   const [finishedTasksPage, setFinishedTasksPage] = useState(1);
+
+
+  useEffect(() => {
+
+    const renderedActiveTasks = splitTasks(tasks, activeTasksPage).length;
+
+    if(renderedActiveTasks < activeTasksPage * 2 && renderedActiveTasks > 3 ){
+        
+      setActiveTasksPage(activeTasksPage - 1);
+  }
+    
+  }, [tasks, activeTasksPage])
+
+  useEffect(() => {
+
+    const renderedFinishedTasks = splitTasks(completedTasks, finishedTasksPage).length;
+
+    if(renderedFinishedTasks  < finishedTasksPage * 2 && renderedFinishedTasks > 3 ){
+
+      setFinishedTasksPage(finishedTasksPage - 1);
+    }
+
+  }, [completedTasks, finishedTasksPage])
   
   /**remove task*/
-  const onTaskRemoveHandler = (task, index) => {
+  const onTaskRemoveHandler = (title, priority, finished) => {
 
-    //remove item using index
-    // const newTasks = tasks.filter((el, elIndex) =>  index !== elIndex); 
+    let oldArray = finished ? [...completedTasks] : [...tasks];
     
-    //remove item using title
-    if(tasks.includes(task)){
-      
-      const renderedActiveTasks = splitTasks(tasks, activeTasksPage).length;
-      
-      if(renderedActiveTasks - 1 < activeTasksPage * 2 && renderedActiveTasks > 3 ){
-        
-          setActiveTasksPage(activeTasksPage - 1);
+    
+
+    if(title && priority){
+
+      oldArray = oldArray.filter( item => item.title !== title || item.priority !== priority);
+
+     finished ? setCompletedTasks(oldArray) : setTasks(oldArray);
+
       }
 
-      const newTasks = tasks.filter(el =>  el.title !== task.title);
-      setTasks(newTasks);
-    }
-    else {
-    
-      const renderedFinishedTasks = splitTasks(completedTasks, finishedTasksPage).length;
-      
-
-      if(renderedFinishedTasks - 1  < finishedTasksPage * 2 && renderedFinishedTasks > 3 ){
-
-          setFinishedTasksPage(finishedTasksPage - 1);
-      }
-
-      const newCompletedTasks = completedTasks.filter(el => el !== task);
-      setCompletedTasks(newCompletedTasks);
-    }
-    
 }
 
   /**add new task */
@@ -70,15 +75,7 @@ const App = () => {
 
       const newCompletedTasks = completedTasks.filter(el => el !== task);
       const newActiveTasks = [...tasks, task];
-      const renderedFinishedTasks = splitTasks(completedTasks, finishedTasksPage).length;
-      
-
-      if(renderedFinishedTasks - 1  < finishedTasksPage * 2 && renderedFinishedTasks > 3 ){
-
-          setFinishedTasksPage(finishedTasksPage - 1);
-      }
      
-
       setCompletedTasks(newCompletedTasks);
       setTasks(newActiveTasks);
     }
@@ -86,13 +83,6 @@ const App = () => {
 
       const newCompletedTasks = [...completedTasks, task];
       const newActiveTasks = tasks.filter(el => el !== task);
-      const renderedActiveTasks = splitTasks(tasks, activeTasksPage).length;
-      
-      if(renderedActiveTasks - 1 < activeTasksPage * 2 && renderedActiveTasks > 3 ){
-        
-          setActiveTasksPage(activeTasksPage - 1);
-      }
-      
 
       setCompletedTasks(newCompletedTasks);
       setTasks(newActiveTasks);
@@ -101,9 +91,12 @@ const App = () => {
   }
 
   /**handle task update */
-  const handleEditTask = (title, priority, oldTitle, oldPriority) => {
+  const updateTaskHandler = (title, priority, oldTitle, oldPriority) => {
 
-    if(!validateTaskTitle(title, tasks, completedTasks)){
+    const updated = updateTask(title, priority, oldTitle, oldPriority, tasks, completedTasks);
+    console.log(updated)
+
+    if(!updated){
 
       const newList = tasks.map( task => {
 
@@ -124,10 +117,9 @@ const App = () => {
 
   return true;
 
-    } else {
-
-      return false;
     }
+
+  return false;
   }
 
   
@@ -178,7 +170,7 @@ const App = () => {
                       canUpdate={completedTasks.includes(task)}
                       finishTaskHandler={finishTaskHandler}
                       onTaskRemoveHandler={onTaskRemoveHandler} 
-                      handleEditTask={handleEditTask} 
+                      taskUpdateHandler={updateTaskHandler} 
                       index={index}  />
 
           }) 
@@ -214,8 +206,7 @@ const App = () => {
                           task={task}  
                           canUpdate={completedTasks.includes(task)}
                           finishTaskHandler={finishTaskHandler}
-                          onTaskRemoveHandler={onTaskRemoveHandler} 
-                          handleEditTask={handleEditTask} 
+                          onTaskRemoveHandler={onTaskRemoveHandler}  
                           index={index}  />
 
               }) :  

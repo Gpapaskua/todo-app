@@ -1,10 +1,10 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 
 /**UI components */
 import Input from './components-ui/Input'
 
 /**helpers */
-import { validateTaskTitle } from '../services/NewTodoValidation';
+import { validateTask } from '../services/TodoValidation';
 
 
 const NewTodo = ({handleNewTaskSubmit, tasks, completedTasks}) => {
@@ -12,19 +12,26 @@ const NewTodo = ({handleNewTaskSubmit, tasks, completedTasks}) => {
     const [newTask, setNewTask] = useState(''); // task title
     const [priority, setPriority] = useState(1); // priority level
     const [titleError, setTitleError] = useState(false); // priority level
+    
+
+    const cleanUp = () => {
+        setNewTask('');
+        setPriority(1);
+        setTitleError(false);
+
+    }
 
     /**handle new task submit and validate task title*/
     const handleSubmit = e => {
 
         e.preventDefault();
 
-        if(!validateTaskTitle(newTask, tasks, completedTasks))  {
+        const isValid = validateTask(newTask, priority, tasks, completedTasks);
+
+        if(!isValid)  {
 
             handleNewTaskSubmit(e, newTask, priority);
-            setNewTask('');
-            setPriority(1);
-            setTitleError(false);
-
+            cleanUp();
         }
 
         else {
@@ -53,7 +60,7 @@ const NewTodo = ({handleNewTaskSubmit, tasks, completedTasks}) => {
 
         {
             titleError ? 
-                <span className='text-danger my-1'>This task appears to be in Todo list!</span> 
+                <span className='text-danger my-1'>Task title and priority should be unique!</span> 
                 : null
         }
         <label className='my-1 text-muted' htmlFor='priorityInput'>Choose Priority</label>

@@ -1,24 +1,36 @@
-import React, { useState } from 'react'
+import React, {  useEffect, useState } from 'react'
 
 /**UI components */
 import Input from '../components-ui/Input';
 
-const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, handleEditTask,index
+const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, taskUpdateHandler,index
   }) => {
-
-  const [updateTaskTitle, setUpdateTaskTitle] = useState(task.title); // value of updated task
-  const [updateTaskPriority, setUpdateTaskPriority] = useState(task.priority); // value of updated task
+    
+  const [updateTaskTitle, setUpdateTaskTitle] = useState(''); // value of updated task
+  const [updateTaskPriority, setUpdateTaskPriority] = useState(1); // value of updated task
   const [editTask, setEditTask] = useState(false); // update task
   const [taskToModify, setTaskToModify] = useState(null); // task to update
-  const [updateError, setUpdateError] = useState(false);
+  const [updateError, setUpdateError] = useState(false); // show update error
 
+  useEffect(() => {
 
-  /**Close task edit form and reset values */
-  const handleTaskEditCancel = () => {
+    setUpdateTaskTitle(task.title);
+    setUpdateTaskPriority(task.priority);
+
+  }, [task])
+
+  const cleanUp = () => {
 
     setEditTask(false); 
     setUpdateError(null);
     setTaskToModify(null);
+
+  }
+
+  /**Close task edit form and reset values */
+  const handleTaskEditCancel = () => {
+
+    cleanUp();
     setUpdateTaskPriority(task.priority);
     setUpdateTaskTitle(task.title);
 
@@ -30,13 +42,11 @@ const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, handleE
     e.preventDefault();
     
     const didUpdate = 
-      handleEditTask(updateTaskTitle, updateTaskPriority, taskToModify.title, taskToModify.priority);
+      taskUpdateHandler(updateTaskTitle, updateTaskPriority, taskToModify.title, taskToModify.priority);
 
     if(didUpdate){
 
-      setTaskToModify(null); 
-      setEditTask(false);
-      setUpdateError(null);
+     cleanUp();
     } else {
 
       setUpdateError(true);
@@ -45,6 +55,7 @@ const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, handleE
     
   }
 
+  
 
     return (
         <div className='d-flex align-items-center justify-content-evenly
@@ -87,7 +98,7 @@ const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, handleE
 
                {
                  updateError ? 
-                  <span className='text-danger my-1'>This task appears to be in Todo list!</span>
+                  <span className='text-danger my-1'>Task title and priority should be unique!</span>
                   : null
                } 
               </form> : 
@@ -123,7 +134,7 @@ const Todo = ({task,  canUpdate, finishTaskHandler, onTaskRemoveHandler, handleE
                 </div>
 
                 <button className='btn btn-small btn-danger mx-2'
-                        onClick={() => onTaskRemoveHandler(task, index)}>X</button>
+                        onClick={() => onTaskRemoveHandler(task.title, task.priority, canUpdate)}>X</button>
 
               </div> 
     )
